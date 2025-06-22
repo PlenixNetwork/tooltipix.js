@@ -19,6 +19,13 @@ Tired of clunky, rigid tooltips that barely behave?
 
 ---
 
+## 👀 See Demo
+
+Check out the live demo of Tooltipix.js in action:  
+[Tooltipix.js Demo](https://plenixnetwork.github.io/tooltipix.js/)
+
+---
+
 ## 📦 Installation
 
 ### Global Script (via jsDelivr)
