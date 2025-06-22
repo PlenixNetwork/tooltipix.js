@@ -1,10 +1,25 @@
+/**
+ * Tooltipix.js - Lightweight Tooltip Library
+ * @version 1.0.0
+ * @author Plenix Network
+ * @license MIT
+ *
+ * Usage:
+ * Global script: <script src="tooltipix.js"></script> then use window.tooltipix.init()
+ * ES Module: import tooltipix from './tooltipix.js' then use tooltipix.init()
+ * CommonJS: const tooltipix = require('./tooltipix.js') then use tooltipix.init()
+ *
+ * Add tooltips using data attributes:
+ * <button data-tooltip="Hello!" data-trigger="hover,focus" data-position="top">Hover me</button>
+ */
+
 (function (root, factory) {
   if (typeof module === 'object' && typeof module.exports === 'object') {
-    module.exports = factory(); // CommonJS
+    module.exports = factory();
   } else if (typeof define === 'function' && define.amd) {
-    define([], factory); // AMD
+    define([], factory);
   } else {
-    root.tooltipix = factory(); // Browser global
+    root.tooltipix = factory();
   }
 })(typeof self !== 'undefined' ? self : this, function () {
   const style = `
@@ -34,40 +49,52 @@
       transform: rotate(45deg);
       z-index: -1;
     }
+    .tooltipix-text {
+      position: relative;
+      z-index: 1;
+    }
   `;
 
   function injectStyle() {
-    if (document.getElementById('tooltipix-style')) return;
-    const s = document.createElement('style');
-    s.id = 'tooltipix-style';
-    s.textContent = style;
-    document.head.appendChild(s);
+    if (!document.getElementById('tooltipix-style')) {
+      const s = document.createElement('style');
+      s.id = 'tooltipix-style';
+      s.textContent = style;
+      document.head.appendChild(s);
+    }
   }
 
   let tooltipEl = null;
   let arrowEl = null;
   let activeTarget = null;
+  let followCursor = false;
+  let followMoveHandler = null;
 
   function createTooltip(text) {
     if (!tooltipEl) {
       tooltipEl = document.createElement('div');
       tooltipEl.className = 'tooltipix';
+
+      const textEl = document.createElement('div');
+      textEl.className = 'tooltipix-text';
+      tooltipEl.appendChild(textEl);
+
       arrowEl = document.createElement('div');
       arrowEl.className = 'tooltipix-arrow';
       tooltipEl.appendChild(arrowEl);
+
       document.body.appendChild(tooltipEl);
     }
-    tooltipEl.firstChild.textContent = text;
+    tooltipEl.querySelector('.tooltipix-text').textContent = text;
   }
 
-  function positionTooltip(target, position = 'top', followCursor = false, event = null) {
+  function positionTooltip(target, position = 'top', follow = false, event = null) {
     const rect = target.getBoundingClientRect();
     const tooltipRect = tooltipEl.getBoundingClientRect();
 
-    let top = 0;
-    let left = 0;
+    let top, left;
 
-    if (followCursor && event) {
+    if (follow && event) {
       top = event.pageY + 10;
       left = event.pageX + 10;
     } else {
@@ -95,9 +122,7 @@
     tooltipEl.style.left = `${left}px`;
   }
 
-  let showTimeout = null;
-  let hideTimeout = null;
-  let durationTimeout = null;
+  let showTimeout, hideTimeout, durationTimeout;
 
   function showTooltip(target, event) {
     const text = target.getAttribute('data-tooltip');
@@ -106,7 +131,7 @@
     const position = target.getAttribute('data-position') || 'top';
     const delay = parseInt(target.getAttribute('data-delay') || '100');
     const duration = parseInt(target.getAttribute('data-duration') || '0');
-    const followCursor = target.hasAttribute('data-follow');
+    followCursor = target.hasAttribute('data-follow');
 
     clearTimeout(hideTimeout);
     clearTimeout(durationTimeout);
@@ -118,19 +143,14 @@
       tooltipEl.classList.add('show');
 
       if (duration > 0) {
-        durationTimeout = setTimeout(() => {
-          hideTooltip();
-        }, duration);
+        durationTimeout = setTimeout(hideTooltip, duration);
+      }
+
+      if (followCursor) {
+        followMoveHandler = (e) => positionTooltip(target, position, true, e);
+        document.addEventListener('mousemove', followMoveHandler);
       }
     }, delay);
-
-    if (followCursor) {
-      document.addEventListener('mousemove', followMove);
-    }
-
-    function followMove(e) {
-      positionTooltip(target, position, true, e);
-    }
   }
 
   function hideTooltip() {
@@ -138,28 +158,46 @@
     clearTimeout(durationTimeout);
     hideTimeout = setTimeout(() => {
       if (tooltipEl) tooltipEl.classList.remove('show');
-      document.removeEventListener('mousemove', () => {});
+      if (followMoveHandler) {
+        document.removeEventListener('mousemove', followMoveHandler);
+        followMoveHandler = null;
+      }
     }, 100);
   }
 
   function init() {
     injectStyle();
-    ['mouseover', 'focus', 'click'].forEach(trigger => {
+
+    // Event listeners for showing tooltip
+    ['mouseover', 'focusin', 'click'].forEach(trigger => {
       document.addEventListener(trigger, (e) => {
         const target = e.target.closest('[data-tooltip]');
-        const userTriggers = target?.getAttribute('data-trigger');
-        if (target && (!userTriggers || userTriggers.split(',').includes(trigger))) {
-          showTooltip(target, e);
-        }
+        if (!target) return;
+
+        const userTriggers = (target.getAttribute('data-trigger') || 'hover,focus').split(',').map(s => s.trim());
+        const matched = (
+          (trigger === 'mouseover' && userTriggers.includes('hover')) ||
+          (trigger === 'focusin' && userTriggers.includes('focus')) ||
+          (trigger === 'click' && userTriggers.includes('click'))
+        );
+
+        if (matched) showTooltip(target, e);
       });
     });
-    ['mouseout', 'blur'].forEach(trigger => {
+
+    // Event listeners for hiding tooltip
+    ['mouseout', 'focusout'].forEach(trigger => {
       document.addEventListener(trigger, (e) => {
         const target = e.target.closest('[data-tooltip]');
-        const userTriggers = target?.getAttribute('data-trigger');
-        if (target && (!userTriggers || userTriggers.split(',').includes(trigger))) {
-          hideTooltip();
-        }
+        if (!target) return;
+
+        const userTriggers = (target.getAttribute('data-trigger') || 'hover,focus').split(',').map(s => s.trim());
+        const matched = (
+          (trigger === 'mouseout' && userTriggers.includes('hover')) ||
+          (trigger === 'focusout' && userTriggers.includes('focus'))
+        );
+
+        if (matched) hideTooltip();
       });
     });
   }

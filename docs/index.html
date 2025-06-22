@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tooltipix.js Demo | Plenix Network</title>
+  <link rel="icon" type="image/x-icon" href="https://eu2.contabostorage.com/482fc34634ce4ff483611f20ae68a131:plenix-network/cdn/assets/images/favicon.ico">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="../dist/main.js"></script>
+</head>
+<body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col items-center py-10 px-4">
+
+  <h1 class="text-4xl font-bold mb-6 text-indigo-700">🎯 Tooltipix.js Live Demo</h1>
+  <p class="mb-10 text-center max-w-2xl text-lg text-gray-600">
+    Hover, click, or focus on the elements below to see <strong>Tooltipix.js</strong> in action.<br>
+    Every tooltip is powered by <code>data-*</code> attributes with zero JS configuration.
+  </p>
+
+  <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+
+    <!-- Position Examples -->
+    <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded shadow"
+      data-tooltip="Tooltip on top of the element" data-position="top">
+      Top Tooltip
+    </button>
+
+    <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded shadow"
+      data-tooltip="Appears below this button" data-position="bottom">
+      Bottom Tooltip
+    </button>
+
+    <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded shadow"
+      data-tooltip="Tooltip shows on the left" data-position="left">
+      Left Tooltip
+    </button>
+
+    <button class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded shadow"
+      data-tooltip="Tooltip shows on the right" data-position="right">
+      Right Tooltip
+    </button>
+
+    <!-- Cursor Follow -->
+    <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow"
+      data-tooltip="I follow your mouse wherever it goes!" data-follow>
+      Follow Cursor
+    </button>
+
+    <!-- Click Trigger -->
+    <button class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded shadow"
+      data-tooltip="This tooltip appears on click" data-trigger="click">
+      Click Trigger
+    </button>
+
+    <!-- Auto-Hide -->
+    <button class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded shadow"
+      data-tooltip="This tooltip disappears in 2 seconds" data-duration="2000">
+      Auto-Hide Tooltip
+    </button>
+
+    <!-- Focus Trigger -->
+    <input type="text" class="border px-4 py-2 rounded shadow-sm"
+      placeholder="Focus me"
+      data-tooltip="Tooltip shown on focus"
+      data-position="top"
+      data-trigger="focus"
+    />
+
+    <!-- Delayed Tooltip -->
+    <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded shadow"
+      data-tooltip="This tooltip appears after a delay" data-delay="1000">
+      Delayed Tooltip
+    </button>
+
+    <!-- Multiple Triggers -->
+    <button class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded shadow"
+      data-tooltip="This tooltip works on hover and focus"
+      data-trigger="hover,focus"
+      data-position="bottom">
+      Hover + Focus Trigger
+    </button>
+
+  </div>
+
+  <footer class="mt-20 text-center text-sm text-gray-500">
+    © 2018–<span id="year"></span> <a href="https://plenix.net" class="underline hover:text-indigo-700" target="_blank" rel="noopener">Plenix Network</a> — Built with 💡 Tooltipix.js
+  </footer>
+
+  <script>
+    tooltipix.init();
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+
+</body>
+</html>
