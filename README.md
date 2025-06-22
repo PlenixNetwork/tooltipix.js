@@ -23,7 +23,7 @@ Tired of clunky, rigid tooltips that barely behave?
 
 ### Global Script (via jsDelivr)
 ```html
-<script src="https://cdn.jsdelivr.net/gh/PlenixNetwork/tooltipix.js/dist/tooltipix.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/PlenixNetwork/tooltipix.js/dist/main.js"></script>
 <script>
   tooltipix.init(); // Activates tooltips on the page
 </script>
